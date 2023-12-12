@@ -1,10 +1,11 @@
 const Results = require("../models/results");
 const Quiz = require("../models/quiz");
+const User = require("../models/user");
 
 const submitQuiz = async (req, res) => {
   const quizId = req.params.id;
   const { answers } = req.body;
-
+  const userId = req.user;
   try {
     const quiz = await Quiz.findById(quizId);
 
@@ -31,16 +32,21 @@ const submitQuiz = async (req, res) => {
 
     const totalMarks =
       correctQuestions * quiz.correctMarks + wrongQuestions * quiz.wrongMarks;
-
     const results = {
       quizId: quizId,
-      userId: req.user._id,
+      userId: userId,
       correctQuestions: correctQuestions,
       wrongQuestions: wrongQuestions,
       totalMarks: totalMarks,
+      correctMarks: quiz.correctMarks,
+      totalQues: quiz.totalQues,
     };
 
     const savedResults = await Results.create(results);
+    await User.findOneAndUpdate(
+      { _id: userId },
+      { $inc: { totalQuizGiven: 1 } }
+    );
 
     res.json({
       message: "Quiz submitted successfully!",
@@ -54,10 +60,8 @@ const submitQuiz = async (req, res) => {
 
 const getResult = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const quizId = req.params.id;
-
-    const result = await Results.findOne({ userId, quizId });
+    const resultId = req.params.id;
+    const result = await Results.findById(resultId);
 
     if (!result) {
       return res.status(404).json({ message: "Result not found." });
@@ -72,7 +76,7 @@ const getResult = async (req, res) => {
 
 const getAllResults = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user;
 
     const results = await Results.find({ userId });
 
@@ -80,9 +84,11 @@ const getAllResults = async (req, res) => {
       results.map(async (result) => {
         const quiz = await Quiz.findById(result.quizId);
         return {
-          quizTitle: quiz.title,
-          quizId: quiz._id,
+          title: quiz.title,
+          _id: quiz._id,
+          author: quiz.author,
           dateCompleted: result.dateCompleted,
+          resultId: result._id,
         };
       })
     );

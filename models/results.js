@@ -15,6 +15,14 @@ const resultsSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  correctMarks: {
+    type: Number,
+    default: 4,
+  },
+  totalQues: {
+    type: Number,
+    required: true,
+  },
   wrongQuestions: {
     type: Number,
     default: 0,

@@ -1,19 +1,19 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const quizRoutes = require("./routes/quizRoutes");
-const resultsRoutes = require("./routes/resultsRoutes");
+const resultsRoutes = require("./routes/resultRoutes");
+const userRoutes = require("./routes/userRoutes");
+const verifyToken = require("./middleware/secureRoute");
+const app = express();
 
 dotenv.config();
-
-const app = express();
+app.use(cors());
 const port = process.env.PORT || 3000;
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.MONGODB_URI);
 
 const db = mongoose.connection;
 
@@ -23,10 +23,11 @@ db.once("open", () => {
 });
 
 app.use(express.json());
-app.use(verifyToken);
 
 app.use("/auth", authRoutes);
+app.use(verifyToken);
 app.use("/quiz", quizRoutes);
+app.use("/user", userRoutes);
 app.use("/results", resultsRoutes);
 
 app.listen(port, () => {

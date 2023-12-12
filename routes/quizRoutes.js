@@ -5,12 +5,14 @@ const {
   getQuiz,
   getAllQuiz,
   postQuiz,
+  getCreatedQuiz,
 } = require("../controllers/quizControllers");
 
 router
+  .get("/getAll", getAllQuiz)
+  .get("/getCreatedQuiz", getCreatedQuiz)
+  .get("/:id", getQuiz)
   .get("/instructions/:id", getInstructions)
-  .get("/quiz/:id", getQuiz)
-  .get("/getAllQuiz", getAllQuiz)
-  .post("/quiz", postQuiz);
+  .post("/create", postQuiz);
 
 module.exports = router;

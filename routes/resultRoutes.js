@@ -7,7 +7,7 @@ const {
 } = require("../controllers/resultController");
 
 router
-  .get("getAllResults", getAllResults)
+  .get("/getAllResults", getAllResults)
   .get("/getResult/:id", getResult)
   .post("/submitQuiz/:id", submitQuiz);
 
